@@ -5,11 +5,11 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Ledgerly — Personal Finance Manager',
   description: 'A clear, calm workspace for understanding your money, tracking spending, and reaching your goals.',
-  generator: 'v0.app',
+  generator: 'Ledgerly',
   icons: {
-    icon: '/icon.svg',
-    shortcut: '/icon.svg',
-    apple: '/apple-icon.png',
+    icon: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-TqCGWMFoo3NIZ5dOM4JGKrF2PQIpKk.png',
+    shortcut: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-TqCGWMFoo3NIZ5dOM4JGKrF2PQIpKk.png',
+    apple: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-TqCGWMFoo3NIZ5dOM4JGKrF2PQIpKk.png',
   },
 }
 
