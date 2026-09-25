@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Ledgerly — Personal Finance Manager',
+  description: 'A clear, calm workspace for understanding your money, tracking spending, and reaching your goals.',
   generator: 'v0.app',
   icons: {
     icon: [
