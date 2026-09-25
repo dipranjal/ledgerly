@@ -1,97 +1,23 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  BarChart3,
-  Bell,
-  ChevronDown,
-  CreditCard,
-  Home,
-  Landmark,
-  LayoutDashboard,
-  Menu,
-  Plus,
-  Search,
-  Settings,
-  Sparkles,
-  Target,
-  TrendingUp,
-  WalletCards,
-  X,
-} from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { ArrowDownLeft, ArrowUpRight, BarChart3, ChevronDown, LayoutDashboard, LogOut, Menu, Plus, Settings, Target, Trash2, WalletCards, X } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
-const transactions = [
-  { merchant: 'Whole Foods Market', category: 'Groceries', date: 'Today, 10:42 AM', amount: '-$86.42', icon: 'W', tone: 'green' },
-  { merchant: 'Acme Inc.', category: 'Salary', date: 'Yesterday, 9:00 AM', amount: '+$4,800.00', icon: 'A', tone: 'blue', income: true },
-  { merchant: 'Netflix', category: 'Subscriptions', date: 'Sep 22, 8:16 PM', amount: '-$15.49', icon: 'N', tone: 'red' },
-  { merchant: 'Shell Gas Station', category: 'Transport', date: 'Sep 21, 5:33 PM', amount: '-$54.20', icon: 'S', tone: 'orange' },
-  { merchant: 'Blue Bottle Coffee', category: 'Dining', date: 'Sep 20, 8:45 AM', amount: '-$6.75', icon: 'B', tone: 'purple' },
-]
-
-const budgets = [
-  { name: 'Housing', spent: 1840, limit: 2200, color: '#4f8cff' },
-  { name: 'Food & dining', spent: 486, limit: 700, color: '#25c79a' },
-  { name: 'Transport', spent: 214, limit: 350, color: '#f5a841' },
-]
+type Tx = { id: string; merchant: string; category: string; amount: number; transaction_type: 'income' | 'expense'; transaction_date: string }
+const tabs = ['Overview', 'Transactions', 'Budgets', 'Accounts', 'Settings']
 
 export default function Page() {
-  const [active, setActive] = useState('Overview')
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [showAdd, setShowAdd] = useState(false)
-  const [toast, setToast] = useState(false)
-
-  const totalBudget = useMemo(() => budgets.reduce((sum, item) => sum + item.limit, 0), [])
-  const totalSpent = useMemo(() => budgets.reduce((sum, item) => sum + item.spent, 0), [])
-
-  function addTransaction() {
-    setShowAdd(false)
-    setToast(true)
-    window.setTimeout(() => setToast(false), 2600)
-  }
-
-  return (
-    <main className="finance-app">
-      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
-        <div className="brand"><span className="brand-mark"><TrendingUp size={18} /></span><span>ledgerly</span></div>
-        <button className="close-menu" onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={20} /></button>
-        <p className="nav-label">Workspace</p>
-        <nav className="nav-list" aria-label="Main navigation">
-          {[['Overview', LayoutDashboard], ['Transactions', ArrowDownLeft], ['Budgets', Target], ['Accounts', Landmark], ['Insights', BarChart3]].map(([label, Icon]) => (
-            <button key={label as string} className={`nav-item ${active === label ? 'active' : ''}`} onClick={() => { setActive(label as string); setMenuOpen(false) }}>
-              <Icon size={18} strokeWidth={active === label ? 2.4 : 1.8} /><span>{label as string}</span>{label === 'Overview' && <span className="nav-dot" />}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="upgrade-card"><Sparkles size={17} /><strong>Unlock more insights</strong><p>Get smarter with your money.</p><button>Explore Plus</button></div>
-          <button className="nav-item"><Settings size={18} /><span>Settings</span></button>
-          <div className="profile"><div className="avatar">JD</div><div><strong>Jordan Davis</strong><span>Personal account</span></div><ChevronDown size={15} /></div>
-        </div>
-      </aside>
-
-      <section className="content">
-        <header className="topbar"><button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Open menu"><Menu size={22} /></button><div className="breadcrumb"><span>Workspace</span><span>/</span><strong>{active}</strong></div><div className="top-actions"><button className="icon-button" aria-label="Search"><Search size={18} /></button><button className="icon-button notification" aria-label="Notifications"><Bell size={18} /><i /></button><div className="mini-avatar">JD</div></div></header>
-        <div className="page-wrap">
-          <div className="welcome-row"><div><p className="eyebrow">Wednesday, September 25, 2026</p><h1>Good morning, Jordan<span className="title-dot">.</span></h1><p className="subtitle">Here&apos;s your financial picture at a glance.</p></div><button className="primary-button" onClick={() => setShowAdd(true)}><Plus size={17} /> Add transaction</button></div>
-
-          <div className="stats-grid">
-            <div className="stat-card balance-card"><div className="card-top"><span>Total balance</span><WalletCards size={17} /></div><div className="balance">$12,486<span>.32</span></div><div className="stat-trend positive"><ArrowUpRight size={14} /> 8.4% <span>vs. last month</span></div><div className="sparkline"><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /></div></div>
-            <div className="stat-card"><div className="card-top"><span>Income this month</span><span className="icon-pill income-pill"><ArrowDownLeft size={15} /></span></div><div className="stat-number">$4,800.00</div><div className="stat-trend positive"><ArrowUpRight size={14} /> 12.6% <span>vs. last month</span></div></div>
-            <div className="stat-card"><div className="card-top"><span>Spending this month</span><span className="icon-pill expense-pill"><ArrowUpRight size={15} /></span></div><div className="stat-number">$2,940.68</div><div className="stat-trend negative"><ArrowUpRight size={14} /> 4.2% <span>vs. last month</span></div></div>
-          </div>
-
-          <div className="dashboard-grid"><section className="panel spending-panel"><div className="panel-heading"><div><h2>Spending overview</h2><p>Keep an eye on where your money goes.</p></div><button className="select-button">This month <ChevronDown size={14} /></button></div><div className="chart-area"><div className="chart-y"><span>$2k</span><span>$1.5k</span><span>$1k</span><span>$500</span><span>$0</span></div><div className="chart"><div className="grid-lines"><i /><i /><i /><i /><i /></div><svg viewBox="0 0 660 210" preserveAspectRatio="none" aria-label="Spending trend chart"><defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#4f8cff" stopOpacity=".27" /><stop offset="1" stopColor="#4f8cff" stopOpacity="0" /></linearGradient></defs><path d="M0,140 C38,120 48,130 78,115 S125,140 152,121 S195,74 225,95 S264,138 290,116 S330,124 360,93 S395,105 425,82 S465,53 488,75 S530,87 550,65 S600,70 660,24 L660,210 L0,210 Z" fill="url(#area)" /><path d="M0,140 C38,120 48,130 78,115 S125,140 152,121 S195,74 225,95 S264,138 290,116 S330,124 360,93 S395,105 425,82 S465,53 488,75 S530,87 550,65 S600,70 660,24" fill="none" stroke="#4f8cff" strokeWidth="3" strokeLinecap="round" /></svg><div className="chart-x"><span>Sep 1</span><span>Sep 7</span><span>Sep 14</span><span>Sep 21</span><span>Sep 25</span></div></div></div></section>
-            <section className="panel budget-panel"><div className="panel-heading"><div><h2>Monthly budgets</h2><p>${(totalSpent).toLocaleString()} of ${(totalBudget).toLocaleString()} used</p></div><button className="more-button" aria-label="Budget options">•••</button></div><div className="budget-list">{budgets.map((budget) => <div className="budget-row" key={budget.name}><div className="budget-meta"><span className="budget-name"><i style={{ background: budget.color }} />{budget.name}</span><span>${budget.spent.toLocaleString()} <em>/ ${budget.limit.toLocaleString()}</em></span></div><div className="progress-track"><span style={{ width: `${(budget.spent / budget.limit) * 100}%`, background: budget.color }} /></div><p>{Math.round((budget.spent / budget.limit) * 100)}% used</p></div>)}</div><button className="outline-button" onClick={() => setActive('Budgets')}>View all budgets <ArrowUpRight size={14} /></button></section></div>
-
-          <section className="panel transactions-panel"><div className="panel-heading"><div><h2>Recent transactions</h2><p>Your latest activity across all accounts.</p></div><button className="text-button" onClick={() => setActive('Transactions')}>View all <ArrowUpRight size={14} /></button></div><div className="table-wrap"><table><thead><tr><th>Transaction</th><th>Category</th><th>Date</th><th className="amount-head">Amount</th></tr></thead><tbody>{transactions.map((transaction) => <tr key={transaction.merchant}><td><div className="transaction-name"><span className={`merchant-icon ${transaction.tone}`}>{transaction.icon}</span><strong>{transaction.merchant}</strong></div></td><td><span className="category-chip">{transaction.category}</span></td><td className="date-cell">{transaction.date}</td><td className={`amount ${transaction.income ? 'income' : ''}`}>{transaction.amount}</td></tr>)}</tbody></table></div></section>
-          <div className="footer-note"><span className="secure-dot" /> Your data is encrypted and secure <span>•</span> Last synced just now</div>
-        </div>
-      </section>
-
-      {showAdd && <div className="modal-backdrop" onClick={() => setShowAdd(false)}><div className="modal" onClick={(event) => event.stopPropagation()}><div className="modal-header"><div><p className="eyebrow">New activity</p><h2>Add transaction</h2></div><button className="icon-button" onClick={() => setShowAdd(false)} aria-label="Close"><X size={18} /></button></div><label>Merchant<input placeholder="e.g. Coffee shop" /></label><div className="form-row"><label>Amount<input placeholder="$0.00" /></label><label>Type<select defaultValue="expense"><option value="expense">Expense</option><option value="income">Income</option></select></label></div><label>Category<select defaultValue="Dining"><option>Dining</option><option>Groceries</option><option>Transport</option><option>Housing</option><option>Other</option></select></label><button className="primary-button full-width" onClick={addTransaction}>Save transaction</button></div></div>}
-      {toast && <div className="toast"><span>✓</span> Transaction saved successfully</div>}
-    </main>
-  )
+  const supabase = createClient(); const [user, setUser] = useState<any>(null); const [active, setActive] = useState('Overview'); const [txs, setTxs] = useState<Tx[]>([]); const [showAuth, setShowAuth] = useState(true); const [signup, setSignup] = useState(false); const [showAdd, setShowAdd] = useState(false); const [menu, setMenu] = useState(false); const [form, setForm] = useState({ email: '', password: '', merchant: '', amount: '', category: 'Dining', type: 'expense' }); const [error, setError] = useState('')
+  useEffect(() => { supabase.auth.getUser().then(({ data }) => { setUser(data.user); setShowAuth(!data.user) }); const { data } = supabase.auth.onAuthStateChange((_e, session) => { setUser(session?.user ?? null); setShowAuth(!session?.user) }); return () => data.subscription.unsubscribe() }, [supabase])
+  useEffect(() => { if (user) loadTransactions() }, [user])
+  async function loadTransactions() { const { data } = await supabase.from('transactions').select('id,merchant,category,amount,transaction_type,transaction_date').order('transaction_date', { ascending: false }); setTxs(data || []) }
+  async function auth(e: React.FormEvent) { e.preventDefault(); setError(''); const result = signup ? await supabase.auth.signUp({ email: form.email, password: form.password, options: { emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/callback` } }) : await supabase.auth.signInWithPassword({ email: form.email, password: form.password }); if (result.error) setError(result.error.message.toLowerCase().includes('invalid') ? 'Invalid email or password.' : result.error.message); else if (signup && !result.data.session) setError('Account created. If email confirmation is enabled in Supabase, check your inbox.') }
+  async function addTransaction(e: React.FormEvent) { e.preventDefault(); const amount = Number(form.amount); if (!form.merchant || !amount) return; const { error } = await supabase.from('transactions').insert({ user_id: user.id, merchant: form.merchant, amount, category: form.category, transaction_type: form.type, transaction_date: new Date().toISOString().slice(0, 10) }); if (!error) { setShowAdd(false); setForm({ ...form, merchant: '', amount: '' }); loadTransactions() } }
+  async function deleteTransaction(id: string) { await supabase.from('transactions').delete().eq('id', id); setTxs(txs.filter(t => t.id !== id)) }
+  const income = useMemo(() => txs.filter(t => t.transaction_type === 'income').reduce((s, t) => s + Number(t.amount), 0), [txs]); const spending = useMemo(() => txs.filter(t => t.transaction_type === 'expense').reduce((s, t) => s + Number(t.amount), 0), [txs]);
+  if (showAuth) return <main className="auth-shell"><div className="auth-card"><div className="brand"><span className="brand-mark"><Trending /></span>ledgerly</div><div className="auth-copy"><p className="eyebrow">Private finance workspace</p><h1>{signup ? 'Start your money story.' : 'Welcome back.'}</h1><p>{signup ? 'Create your secure account and take control of every dollar.' : 'Your calm, clear view of money is waiting.'}</p></div><form onSubmit={auth} className="auth-form"><label>Email<input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" /></label><label>Password<input type="password" required minLength={6} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="At least 6 characters" /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button full-width">{signup ? 'Create account' : 'Log in'} <ArrowUpRight size={16} /></button></form><button className="auth-switch" onClick={() => { setSignup(!signup); setError('') }}>{signup ? 'Already have an account? Log in' : 'New here? Create an account'}</button></div><div className="auth-visual"><span className="orb" /><p>“The best financial system is the one you can actually understand.”</p><strong>Simple by design.</strong></div></main>
+  return <main className="finance-app"><aside className={`sidebar ${menu ? 'sidebar-open' : ''}`}><div className="brand"><span className="brand-mark"><Trending /></span>ledgerly</div><button className="close-menu" onClick={() => setMenu(false)}><X /></button><p className="nav-label">Workspace</p><nav className="nav-list">{tabs.map((tab, i) => <button key={tab} className={`nav-item ${active === tab ? 'active' : ''}`} onClick={() => { setActive(tab); setMenu(false) }}>{[LayoutDashboard, ArrowDownLeft, Target, WalletCards, Settings][i]({ size: 18 })}<span>{tab}</span></button>)}</nav><div className="sidebar-bottom"><div className="upgrade-card"><BarChart3 size={18} /><strong>Build better habits</strong><p>Small steps add up to big progress.</p></div><button className="nav-item" onClick={() => supabase.auth.signOut()}><LogOut size={18} /><span>Log out</span></button><div className="profile"><div className="avatar">{(user.email?.[0] || 'U').toUpperCase()}</div><div><strong>{user.email?.split('@')[0]}</strong><span>Personal account</span></div></div></div></aside><section className="content"><header className="topbar"><button className="menu-button" onClick={() => setMenu(true)}><Menu /></button><div className="breadcrumb"><span>Workspace</span><span>/</span><strong>{active}</strong></div><div className="mini-avatar">{(user.email?.[0] || 'U').toUpperCase()}</div></header><div className="page-wrap"><div className="welcome-row"><div><p className="eyebrow">Your financial command center</p><h1>Good morning<span className="title-dot">.</span></h1><p className="subtitle">Here&apos;s your financial picture at a glance.</p></div><button className="primary-button" onClick={() => setShowAdd(true)}><Plus size={17} /> Add transaction</button></div>{active === 'Overview' && <><div className="stats-grid"><div className="stat-card balance-card"><div className="card-top">Net activity <WalletCards size={17} /></div><div className="balance">${(income - spending).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div><div className="stat-trend positive"><ArrowUpRight size={14} /> Live from your transactions</div></div><div className="stat-card"><div className="card-top">Income this month <ArrowDownLeft size={16} /></div><div className="stat-number">${income.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div><div className="stat-trend positive">Money in</div></div><div className="stat-card"><div className="card-top">Spending this month <ArrowUpRight size={16} /></div><div className="stat-number">${spending.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div><div className="stat-trend negative">Money out</div></div></div><section className="panel transactions-panel"><div className="panel-heading"><div><h2>Recent transactions</h2><p>Your latest activity across all accounts.</p></div><button className="text-button" onClick={() => setActive('Transactions')}>View all <ArrowUpRight size={14} /></button></div><TransactionTable txs={txs.slice(0, 5)} onDelete={deleteTransaction} /></section></>}{active === 'Transactions' && <section className="panel transactions-panel"><div className="panel-heading"><div><h2>All transactions</h2><p>Add, review, and remove activity.</p></div><button className="primary-button" onClick={() => setShowAdd(true)}><Plus size={15} /> Add</button></div><TransactionTable txs={txs} onDelete={deleteTransaction} /></section>}{active === 'Budgets' && <section className="panel empty-panel"><Target size={32} /><h2>Budgets</h2><p>Budget tracking is ready for your categories. Add your first budget from this workspace.</p><button className="primary-button" onClick={() => setShowAdd(true)}>Create a budget</button></section>}{active === 'Accounts' && <section className="panel empty-panel"><WalletCards size={32} /><h2>Accounts</h2><p>Connect your checking, savings, credit, and investment accounts as your next step.</p><button className="primary-button">Add account</button></section>}{active === 'Settings' && <section className="panel settings-panel"><p className="eyebrow">Account settings</p><h2>Personal preferences</h2><label>Display name<input defaultValue={user.email?.split('@')[0]} /></label><label>Currency<select defaultValue="USD"><option>USD — US Dollar</option><option>EUR — Euro</option><option>GBP — Pound Sterling</option></select></label><button className="primary-button" onClick={() => alert('Settings saved')}>Save settings</button></section>}<div className="footer-note"><span className="secure-dot" /> Your data is protected by Supabase Row Level Security</div></div></section>{showAdd && <div className="modal-backdrop" onClick={() => setShowAdd(false)}><form className="modal" onClick={e => e.stopPropagation()} onSubmit={addTransaction}><div className="modal-header"><div><p className="eyebrow">New activity</p><h2>Add transaction</h2></div><button type="button" className="icon-button" onClick={() => setShowAdd(false)}><X size={18} /></button></div><label>Merchant<input required value={form.merchant} onChange={e => setForm({ ...form, merchant: e.target.value })} placeholder="e.g. Coffee shop" /></label><div className="form-row"><label>Amount<input required type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} placeholder="0.00" /></label><label>Type<select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}><option value="expense">Expense</option><option value="income">Income</option></select></label></div><label>Category<select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>{['Dining', 'Groceries', 'Transport', 'Housing', 'Salary', 'Other'].map(x => <option key={x}>{x}</option>)}</select></label><button className="primary-button full-width">Save transaction</button></form></div>}</main>
 }
+function Trending() { return <ArrowUpRight size={18} /> }
+function TransactionTable({ txs, onDelete }: { txs: Tx[]; onDelete: (id: string) => void }) { return <div className="table-wrap"><table><thead><tr><th>Transaction</th><th>Category</th><th>Date</th><th>Amount</th><th /></tr></thead><tbody>{txs.length ? txs.map(t => <tr key={t.id}><td><strong>{t.merchant}</strong></td><td><span className="category-chip">{t.category}</span></td><td className="date-cell">{t.transaction_date}</td><td className={`amount ${t.transaction_type === 'income' ? 'income' : ''}`}>{t.transaction_type === 'income' ? '+' : '-'}${Number(t.amount).toFixed(2)}</td><td><button className="icon-button" onClick={() => onDelete(t.id)} aria-label={`Delete ${t.merchant}`}><Trash2 size={15} /></button></td></tr>) : <tr><td colSpan={5} className="empty-cell">No transactions yet. Add your first one.</td></tr>}</tbody></table></div>}
